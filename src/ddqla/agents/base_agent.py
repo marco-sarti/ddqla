@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 
 
@@ -27,7 +28,7 @@ class BaseAgent(ABC):
         self._fit_each_n_steps = fit_each_n_steps
         p1 = self._model_1(np.expand_dims(self._state, axis=0), training=False)[0]
         p2 = self._model_2(np.expand_dims(self._state, axis=0), training=False)[0]
-        self.__q = Agent._max_min(p1, p2)
+        self.__q = BaseAgent._max_min(p1, p2)
         self._cum_rewards = []
         self._cum_rewards_length = cumulative_rewards_max_length
         self.cum_rewards_log = []
@@ -42,13 +43,13 @@ class BaseAgent(ABC):
         self._memory_batch_size = memory_batch_size
         self.__allow_episode_tracking = allow_episode_tracking
         self.__episodes = []
-        self.__actual_episode = Agent.__get_empty_episode()
+        self.__actual_episode = BaseAgent.__get_empty_episode()
         self.__steps = 0
 
     def start_episode(self, flush=False):
         if self.__allow_episode_tracking and flush:
             self.stop_episode()
-        self.__actual_episode = Agent.__get_empty_episode()
+        self.__actual_episode = BaseAgent.__get_empty_episode()
 
     def stop_episode(self):
         self.__episodes.append(self.__actual_episode)
@@ -58,7 +59,7 @@ class BaseAgent(ABC):
 
     def reset_episodes(self):
         self.__episodes = []
-        self.__actual_episode = Agent.__get_empty_episode()
+        self.__actual_episode = BaseAgent.__get_empty_episode()
 
     def is_memory_ready(self):
         return self._memory_ready
@@ -110,7 +111,7 @@ class BaseAgent(ABC):
         self.cum_rewards_log.append(np.sum(self._cum_rewards))
         p1 = self._model_1(np.expand_dims(self._state, axis=0), training=False)[0]
         p2 = self._model_2(np.expand_dims(self._state, axis=0), training=False)[0]
-        q2 = Agent._max_min(p1, p2)
+        q2 = BaseAgent._max_min(p1, p2)
         self.__q[action] = self.__q[action] * .1 + (reward + np.max(q2) * self._gamma) * .9
         self.__memory_add(self._state, self.__q)
         self.__q = q2
@@ -120,6 +121,26 @@ class BaseAgent(ABC):
 
     def get_last_cumulative_rewards(self):
         return np.sum(self._cum_rewards)
+
+    def summary(self):
+        crl = self.cum_rewards_log
+        cr_indexes = [i for i, _ in enumerate(crl)]
+        cr_values = [x for _, x in enumerate(crl)]
+        tl = self.tests_log
+        tl_indexes = [i for i, _ in enumerate(tl)]
+        tl_values = [x for _, x in enumerate(tl)]
+        plt.figure(figsize=(24, 8))
+        plt.title('Cumulative rewards')
+        plt.scatter(cr_indexes, cr_values, label="DDQL Agent", s=1)
+        plt.hlines(0, xmin=0, xmax=len(crl), linestyles='--', color='gray')
+        plt.legend()
+        plt.show()
+        plt.figure(figsize=(24, 8))
+        plt.title('Test Rewards')
+        plt.scatter(tl_indexes, tl_values, label="DDQL Agent")
+        plt.hlines(0, xmin=0, xmax=len(tl), linestyles='--', color='gray')
+        plt.legend()
+        plt.show()
 
     @abstractmethod
     def reset_state(self):
