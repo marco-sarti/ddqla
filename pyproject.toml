@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ddqla"
-version = "0.1"
+version = "0.1.1"
 authors = [{ name="Marco Sarti", email="info@marcosarti.com" }]
 description = "A smart way to create a ddql agent"
 readme = "README.md"
