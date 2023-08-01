@@ -2,7 +2,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 
-class Agent(ABC):
+class BaseAgent(ABC):
     def __init__(self,
                  num_actions: int,
                  environment: np.array,

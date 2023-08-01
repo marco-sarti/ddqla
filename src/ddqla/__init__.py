@@ -1,2 +1,2 @@
-from . import agent
-__all__ = ["agent"]
+from . import agents
+__all__ = ["agents"]
