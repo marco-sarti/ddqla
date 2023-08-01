@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ddqla"
+version = "0.1"
+authors = [{ name="Marco Sarti", email="info@marcosarti.com" }]
+description = "A smart way to create a ddql agent"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License 2.0",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/marco-sarti/ddqla"
+"Bug Tracker" = "https://github.com/marco-sarti/ddqla/issues"
