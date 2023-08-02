@@ -8,7 +8,7 @@ class BaseAgent(ABC):
                  num_actions: int,
                  environment: np.array,
                  fit_each_n_steps=100,
-                 exploration_rate: int = 1,
+                 exploration_rate: float = 1,
                  exploration_rate_decay: float = 1e-4,
                  gamma: float = .75,
                  cumulative_rewards_max_length: int = 100,
@@ -116,6 +116,8 @@ class BaseAgent(ABC):
         self.__memory_add(self._state, self.__q)
         self.__q = q2
         self.__steps += 1
+        if self._exploration_rate > 0.05:
+            self._exploration_rate -= self._exploration_rate_decay
         if self.__steps % self._fit_each_n_steps == 0 and self._memory_ready:
             self._fit(self._memory_batch_size)
 

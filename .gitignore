@@ -1,6 +1,6 @@
 .vscode
 .idea
-.pyirc
+.pypirc
 .env
 dist
 venv
