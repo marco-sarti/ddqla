@@ -1,8 +1,8 @@
-# Agent Class
-The Agent class is an abstract class that implements an agent for reinforcement learning. This class can be extended to create specific agents for different environments.
+# BaseAgent Class
+It is an abstract class that implements an agent for reinforcement learning. This class can be extended to create specific agents for different environments.
 
 ## Constructor
-The constructor of the Agent class accepts the following parameters:
+The constructor accepts the following parameters:
 
 - **num_actions**: The number of possible actions that the agent can take.
 - **environment**: The environment in which the agent operates, represented as a numpy array.
@@ -16,7 +16,7 @@ The constructor of the Agent class accepts the following parameters:
 - **allow_episode_tracking**: A boolean flag indicating whether the agent should track episodes.
 
 ## Methods
-The Agent class implements the following methods:
+The BaseAgent class implements the following methods:
 
 - **start_episode**: Starts a new episode.
 - **stop_episode**: Ends the current episode.
@@ -26,14 +26,14 @@ The Agent class implements the following methods:
 - **step**: Performs a step of the agent, choosing an action, receiving a reward, and updating the models.
 - **get_last_cumulative_rewards**: Returns the sum of the last cumulative rewards.
 
-In addition, the Agent class requires the following functions to be implemented in subclasses:
+In addition, the it takes the following functions to be implemented in subclasses:
 
 - **reset_state**: Resets the agent's state at the start of a new episode.
 - **_get_reward**: Calculates the reward received by the agent for undertaking an action in a given state.
 - **_get_model**: Returns the model used by the agent to learn the Q-value function.
 
 ## Usage Example
-To use the Agent class, you need to extend it and implement the abstract methods. Here's an example of how this might be done:
+To use the class, you need to extend it and implement the abstract methods. Here's an example of how this might be done:
 
     class MyAgent(Agent):
         def reset_state(self):
@@ -54,4 +54,4 @@ Once the subclass is defined, you can create an instance of the agent and use it
     agent.stop_episode()
 
 ## Notes
-The Agent class is designed to be used with discrete environments and deep learning models. If you wish to use a continuous environment or a different learning model, you may need to make some modifications to the class.
+BaseAgent is designed to be used with discrete environments and deep learning models. If you wish to use a continuous environment or a different learning model, you may need to make some modifications to the class.
