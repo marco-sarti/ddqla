@@ -127,9 +127,9 @@ class BaseAgent(ABC):
         for i in range(0, len(self._state)):
             simulation_step.append(self._state[i])
         for i in range(0, self._num_actions):
-            simulation_step.append(p1[i].numpy.item())
+            simulation_step.append(p1[i].numpy().item())
         for i in range(0, self._num_actions):
-            simulation_step.append(p2[i].numpy.item())
+            simulation_step.append(p2[i].numpy().item())
         for i in range(0, self._num_actions):
             simulation_step.append(self.__q[i])
         simulation_step.append(rnd)
