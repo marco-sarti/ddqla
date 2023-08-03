@@ -4,3 +4,4 @@
 .env
 dist
 venv
+test/simulation_log.csv

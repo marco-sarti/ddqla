@@ -1,4 +1,6 @@
 import numpy as np
+import datetime
+import csv
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 
@@ -35,6 +37,7 @@ class BaseAgent(ABC):
         self.tests_log = []
         self.environment_log = []
         self.environment_test_log = []
+        self.simulation_log = []
         self._memory_length = memory_max_length
         self._memory_buffer_x = np.zeros((self._memory_length, len(self._state)))
         self._memory_buffer_y = np.zeros((self._memory_length, self._num_actions))
@@ -44,7 +47,7 @@ class BaseAgent(ABC):
         self.__allow_episode_tracking = allow_episode_tracking
         self.__episodes = []
         self.__actual_episode = BaseAgent.__get_empty_episode()
-        self.__steps = 0
+        self._steps = 0
 
     def start_episode(self, flush=False):
         if self.__allow_episode_tracking and flush:
@@ -91,16 +94,16 @@ class BaseAgent(ABC):
 
     def test(self, steps):
         self.reset_state()
-        rewards = 0
+        test_rewards = 0
         self.environment_test_log.append(self._state)
         for _ in range(steps):
             pt1 = self._model_1(np.expand_dims(self._state, axis=0), training=False)[0]
             pt2 = self._model_2(np.expand_dims(self._state, axis=0), training=False)[0]
             next_action = np.argmax(pt1 + pt2)
-            rewards += self._get_reward(next_action, self._state)
+            test_rewards += self._get_reward(next_action, self._state)
             self.environment_test_log.append(self._state)
-        self.tests_log.append(rewards)
-        return rewards
+        self.tests_log.append(test_rewards)
+        return test_rewards
 
     def step(self):
         rnd = np.random.random()
@@ -115,14 +118,58 @@ class BaseAgent(ABC):
         self.__q[action] = self.__q[action] * .1 + (reward + np.max(q2) * self._gamma) * .9
         self.__memory_add(self._state, self.__q)
         self.__q = q2
-        self.__steps += 1
+        self._steps += 1
         if self._exploration_rate > 0.05:
             self._exploration_rate -= self._exploration_rate_decay
-        if self.__steps % self._fit_each_n_steps == 0 and self._memory_ready:
+        if self._steps % self._fit_each_n_steps == 0 and self._memory_ready:
             self._fit(self._memory_batch_size)
+        simulation_step = [self._steps]
+        for i in range(0, len(self._state)):
+            simulation_step.append(self._state[i])
+        for i in range(0, self._num_actions):
+            simulation_step.append(p1[i].numpy.item())
+        for i in range(0, self._num_actions):
+            simulation_step.append(p2[i].numpy.item())
+        for i in range(0, self._num_actions):
+            simulation_step.append(self.__q[i])
+        simulation_step.append(rnd)
+        simulation_step.append(self._exploration_rate)
+        simulation_step.append(action)
+        simulation_step.append(reward)
+        simulation_step.append(np.sum(self._cum_rewards))
+        self.simulation_log.append(simulation_step)
 
     def get_last_cumulative_rewards(self):
         return np.sum(self._cum_rewards)
+
+    def get_simulation_log_headers(self):
+        headers = ["step"]
+        for i in range(0, len(self._state)):
+            headers.append("state_" + str(i))
+        for i in range(0, self._num_actions):
+            headers.append("p1_" + str(i))
+        for i in range(0, self._num_actions):
+            headers.append("p2_" + str(i))
+        for i in range(0, self._num_actions):
+            headers.append("q_" + str(i))
+        headers.append("rnd")
+        headers.append("er")
+        headers.append("action")
+        headers.append("reward")
+        headers.append("cum_reward")
+        return headers
+
+    def save_simulation_log(self, append_ts=True):
+        now = datetime.datetime.now()
+        filename = 'simulation_log'
+        if append_ts:
+            filename += now.strftime("%Y%m%d%H%M%S")
+        filename += '.csv'
+        headers = self.get_simulation_log_headers()
+        with open(filename, 'w', newline='') as file:
+            writer = csv.writer(file, delimiter=';')
+            writer.writerow(headers)
+            writer.writerows(self.simulation_log)
 
     def summary(self):
         crl = self.cum_rewards_log
