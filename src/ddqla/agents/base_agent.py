@@ -137,6 +137,7 @@ class BaseAgent(ABC):
         simulation_step.append(action)
         simulation_step.append(reward)
         simulation_step.append(np.sum(self._cum_rewards))
+        simulation_step.append(1 if rnd > self._exploration_rate else 0)
         self.simulation_log.append(simulation_step)
 
     def get_last_cumulative_rewards(self):
