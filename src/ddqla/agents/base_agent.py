@@ -157,6 +157,7 @@ class BaseAgent(ABC):
         headers.append("action")
         headers.append("reward")
         headers.append("cum_reward")
+        headers.append("net")
         return headers
 
     def save_simulation_log(self, append_ts=True):
@@ -178,13 +179,13 @@ class BaseAgent(ABC):
         tl = self.tests_log
         tl_indexes = [i for i, _ in enumerate(tl)]
         tl_values = [x for _, x in enumerate(tl)]
-        plt.figure(figsize=(24, 8))
+        plt.figure(figsize=(24, 4))
         plt.title('Cumulative rewards')
         plt.scatter(cr_indexes, cr_values, label="DDQL Agent", s=1)
         plt.hlines(0, xmin=0, xmax=len(crl), linestyles='--', color='gray')
         plt.legend()
         plt.show()
-        plt.figure(figsize=(24, 8))
+        plt.figure(figsize=(24, 4))
         plt.title('Test Rewards')
         plt.scatter(tl_indexes, tl_values, label="DDQL Agent")
         plt.hlines(0, xmin=0, xmax=len(tl), linestyles='--', color='gray')
