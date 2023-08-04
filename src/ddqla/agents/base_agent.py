@@ -134,10 +134,10 @@ class BaseAgent(ABC):
             simulation_step.append(self.__q[i])
         simulation_step.append(rnd)
         simulation_step.append(self._exploration_rate)
+        simulation_step.append(1 if rnd > self._exploration_rate else 0)
         simulation_step.append(action)
         simulation_step.append(reward)
         simulation_step.append(np.sum(self._cum_rewards))
-        simulation_step.append(1 if rnd > self._exploration_rate else 0)
         self.simulation_log.append(simulation_step)
 
     def get_last_cumulative_rewards(self):
@@ -155,10 +155,10 @@ class BaseAgent(ABC):
             headers.append("q_" + str(i))
         headers.append("rnd")
         headers.append("er")
+        headers.append("net")
         headers.append("action")
         headers.append("reward")
         headers.append("cum_reward")
-        headers.append("net")
         return headers
 
     def save_simulation_log(self, append_ts=True):
