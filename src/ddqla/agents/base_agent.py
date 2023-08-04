@@ -134,6 +134,7 @@ class BaseAgent(ABC):
             simulation_step.append(self.__q[i])
         simulation_step.append(rnd)
         simulation_step.append(self._exploration_rate)
+        simulation_step.append(1 if rnd > self._exploration_rate else 0)
         simulation_step.append(action)
         simulation_step.append(reward)
         simulation_step.append(np.sum(self._cum_rewards))
@@ -154,6 +155,7 @@ class BaseAgent(ABC):
             headers.append("q_" + str(i))
         headers.append("rnd")
         headers.append("er")
+        headers.append("net")
         headers.append("action")
         headers.append("reward")
         headers.append("cum_reward")
@@ -178,13 +180,13 @@ class BaseAgent(ABC):
         tl = self.tests_log
         tl_indexes = [i for i, _ in enumerate(tl)]
         tl_values = [x for _, x in enumerate(tl)]
-        plt.figure(figsize=(24, 8))
+        plt.figure(figsize=(24, 4))
         plt.title('Cumulative rewards')
         plt.scatter(cr_indexes, cr_values, label="DDQL Agent", s=1)
         plt.hlines(0, xmin=0, xmax=len(crl), linestyles='--', color='gray')
         plt.legend()
         plt.show()
-        plt.figure(figsize=(24, 8))
+        plt.figure(figsize=(24, 4))
         plt.title('Test Rewards')
         plt.scatter(tl_indexes, tl_values, label="DDQL Agent")
         plt.hlines(0, xmin=0, xmax=len(tl), linestyles='--', color='gray')
