@@ -48,6 +48,8 @@ class BaseAgent(ABC):
         self.__episodes = []
         self.__actual_episode = BaseAgent.__get_empty_episode()
         self._steps = 0
+        self._tests = 0
+        self.__test_running = False
 
     def start_episode(self, flush=False):
         if self.__allow_episode_tracking and flush:
@@ -93,6 +95,8 @@ class BaseAgent(ABC):
         return h1, h2
 
     def test(self, steps):
+        self._tests += 1
+        self.__test_running = True
         self.reset_state()
         test_rewards = 0
         self.environment_test_log.append(self._state)
@@ -100,15 +104,16 @@ class BaseAgent(ABC):
             pt1 = self._model_1(np.expand_dims(self._state, axis=0), training=False)[0]
             pt2 = self._model_2(np.expand_dims(self._state, axis=0), training=False)[0]
             next_action = np.argmax(pt1 + pt2)
-            test_rewards += self._get_reward(next_action, self._state)
+            test_rewards += self._get_reward(next_action)
             self.environment_test_log.append(self._state)
         self.tests_log.append(test_rewards)
+        self.__test_running = False
         return test_rewards
 
     def step(self):
         rnd = np.random.random()
         action = np.argmax(self.__q) if rnd > self._exploration_rate else np.random.randint(self._num_actions)
-        reward = self._get_reward(action, self._state)
+        reward = self._get_reward(action)
         self._cum_rewards.append(reward)
         if len(self._cum_rewards) > self._cum_rewards_length: self._cum_rewards = self._cum_rewards[1:]
         self.cum_rewards_log.append(np.sum(self._cum_rewards))
@@ -123,6 +128,7 @@ class BaseAgent(ABC):
             self._exploration_rate -= self._exploration_rate_decay
         if self._steps % self._fit_each_n_steps == 0 and self._memory_ready:
             self._fit(self._memory_batch_size)
+        test_string = "T" + str(self._tests)
         simulation_step = [self._steps]
         for i in range(0, len(self._state)):
             simulation_step.append(self._state[i])
@@ -138,6 +144,7 @@ class BaseAgent(ABC):
         simulation_step.append(action)
         simulation_step.append(reward)
         simulation_step.append(np.sum(self._cum_rewards))
+        simulation_step.append(test_string if self.__test_running is True else "")
         self.simulation_log.append(simulation_step)
 
     def get_last_cumulative_rewards(self):
@@ -159,6 +166,7 @@ class BaseAgent(ABC):
         headers.append("action")
         headers.append("reward")
         headers.append("cum_reward")
+        headers.append("test")
         return headers
 
     def save_simulation_log(self, append_ts=True):
@@ -198,7 +206,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    def _get_reward(self, action, environment):
+    def _get_reward(self, action):
         pass
 
     @abstractmethod
